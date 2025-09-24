@@ -1,618 +1,262 @@
 import styled from "@emotion/styled";
 import { useEffect, useState, useCallback } from "react";
 
-// 메인 컨테이너 스타일 - 민음사 커뮤니티 스타일
+// 메인 컨테이너 스타일
 const AppContainer = styled.div`
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(
+    135deg,
+    #1e3c72 0%,
+    #2a5298 25%,
+    #667eea 50%,
+    #764ba2 75%,
+    #f093fb 100%
+  );
   position: relative;
   overflow: hidden;
-  font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, sans-serif;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 20% 80%,
+        rgba(120, 119, 198, 0.3) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(255, 119, 198, 0.3) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(120, 219, 255, 0.2) 0%,
+        transparent 50%
+      );
+    animation: backgroundShift 20s ease-in-out infinite;
+  }
+
+  @keyframes backgroundShift {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
 `;
 
-// 민음사 커뮤니티 배경 컨테이너
-const MinumsaBackground = styled.div`
+// 배경 애니메이션 요소들
+const FloatingElement = styled.div<{
+  size: string;
+  top: string;
+  left: string;
+  animationDelay: string;
+  color: string;
+}>`
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-`;
+  width: ${(props) => props.size};
+  height: ${(props) => props.size};
+  background: linear-gradient(
+    45deg,
+    ${(props) => props.color},
+    rgba(255, 255, 255, 0.1)
+  );
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float 8s ease-in-out infinite;
+  animation-delay: ${(props) => props.animationDelay};
+  box-shadow: 0 0 20px ${(props) => props.color}40,
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(1px);
 
-// 민음사 커뮤니티 헤더
-const MinumsaHeader = styled.header`
-  background: #2e7d32;
-  padding: 12px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .logo {
-    font-size: 18px;
-    font-weight: 500;
-    color: #ffffff;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .nav-menu {
-    display: flex;
-    gap: 30px;
-    align-items: center;
-
-    a {
-      color: rgba(255, 255, 255, 0.9);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 400;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      &.active {
-        color: #ffffff;
-        font-weight: 500;
-      }
+  @keyframes float {
+    0% {
+      transform: translateY(0px) rotate(0deg) scale(1);
     }
-  }
-
-  .user-menu {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-
-    .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
+    25% {
+      transform: translateY(-30px) rotate(90deg) scale(1.1);
+    }
+    50% {
+      transform: translateY(-20px) rotate(180deg) scale(0.9);
+    }
+    75% {
+      transform: translateY(-40px) rotate(270deg) scale(1.05);
+    }
+    100% {
+      transform: translateY(0px) rotate(360deg) scale(1);
     }
   }
 `;
 
-// 민음사 커뮤니티 메인 컨텐츠
-const MinumsaMainBg = styled.main`
-  flex: 1;
-  padding: 0;
-  background: #ffffff;
-  width: 100%;
-
-  .sort-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-
-    select {
-      padding: 8px 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    .notice-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: #666;
-
-      input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-      }
-    }
-  }
-
-  .post-list {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  /* 왼쪽 사이드바 */
-  .sidebar-left {
-    @media (max-width: 1024px) {
-      display: none;
-    }
-
-    .category-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      margin-bottom: 20px;
-
-      h3 {
-        font-size: 16px;
-        font-weight: 600;
-        color: #212529;
-        margin-bottom: 16px;
-      }
-
-      .category-list {
-        .category-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 12px;
-          margin-bottom: 4px;
-          border-radius: 8px;
-          color: #666;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s;
-
-          &:hover {
-            background: #f5f9fc;
-            color: #446e9b;
-          }
-
-          &.active {
-            background: #446e9b;
-            color: white;
-          }
-
-          .count {
-            background: rgba(0, 0, 0, 0.08);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-          }
-
-          &.active .count {
-            background: rgba(255, 255, 255, 0.2);
-          }
-        }
-      }
-    }
-  }
-
-  /* 메인 피드 */
-  .main-feed {
-    .write-post {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      margin-bottom: 20px;
-
-      .write-header {
-        display: flex;
-        gap: 12px;
-        align-items: start;
-
-        .user-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #446e9b 0%, #5c88c4 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 16px;
-        }
-
-        textarea {
-          flex: 1;
-          border: none;
-          resize: none;
-          font-size: 15px;
-          font-family: inherit;
-          padding: 8px 0;
-          outline: none;
-
-          &::placeholder {
-            color: #999;
-          }
-        }
-      }
-
-      .write-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid #f0f0f0;
-
-        .tools {
-          display: flex;
-          gap: 16px;
-
-          button {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 20px;
-
-            &:hover {
-              color: #446e9b;
-            }
-          }
-        }
-
-        .submit-btn {
-          padding: 8px 24px;
-          background: #446e9b;
-          color: white;
-          border: none;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-
-          &:hover {
-            background: #3a5d84;
-          }
-        }
-      }
-    }
-
-    .post-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      margin-bottom: 20px;
-
-      .post-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 16px;
-
-        .post-author {
-          display: flex;
-          gap: 12px;
-
-          .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #e0e0e0;
-          }
-
-          .author-info {
-            .name {
-              font-size: 15px;
-              font-weight: 600;
-              color: #212529;
-              margin-bottom: 4px;
-            }
-
-            .time {
-              font-size: 13px;
-              color: #999;
-            }
-          }
-        }
-
-        .post-menu {
-          color: #999;
-          cursor: pointer;
-        }
-      }
-
-      .post-content {
-        font-size: 15px;
-        line-height: 1.6;
-        color: #333;
-        margin-bottom: 16px;
-      }
-
-      .post-stats {
-        display: flex;
-        gap: 24px;
-        padding: 12px 0;
-        border-top: 1px solid #f0f0f0;
-        border-bottom: 1px solid #f0f0f0;
-        margin-bottom: 12px;
-
-        .stat {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 14px;
-          color: #666;
-          cursor: pointer;
-
-          &:hover {
-            color: #446e9b;
-          }
-
-          &.liked {
-            color: #e74c3c;
-          }
-        }
-      }
-
-      .post-comments {
-        .comment {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 12px;
-
-          .comment-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #f0f0f0;
-          }
-
-          .comment-content {
-            flex: 1;
-            background: #f8f9fa;
-            padding: 10px 14px;
-            border-radius: 12px;
-
-            .comment-author {
-              font-size: 13px;
-              font-weight: 600;
-              color: #212529;
-              margin-bottom: 4px;
-            }
-
-            .comment-text {
-              font-size: 14px;
-              color: #333;
-              line-height: 1.5;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /* 오른쪽 사이드바 */
-  .sidebar-right {
-    @media (max-width: 1024px) {
-      display: none;
-    }
-
-    .trending-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      margin-bottom: 20px;
-
-      h3 {
-        font-size: 16px;
-        font-weight: 600;
-        color: #212529;
-        margin-bottom: 16px;
-      }
-
-      .trending-list {
-        .trending-item {
-          display: flex;
-          align-items: start;
-          gap: 12px;
-          margin-bottom: 16px;
-
-          .trending-rank {
-            font-size: 18px;
-            font-weight: 700;
-            color: #446e9b;
-            width: 20px;
-          }
-
-          .trending-content {
-            flex: 1;
-
-            .trending-title {
-              font-size: 14px;
-              color: #212529;
-              margin-bottom: 4px;
-              cursor: pointer;
-
-              &:hover {
-                color: #446e9b;
-              }
-            }
-
-            .trending-meta {
-              font-size: 12px;
-              color: #999;
-            }
-          }
-        }
-      }
-    }
-
-    .recommended-books {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-      h3 {
-        font-size: 16px;
-        font-weight: 600;
-        color: #212529;
-        margin-bottom: 16px;
-      }
-
-      .book-list {
-        .book-item {
-          display: flex;
-          gap: 12px;
-          margin-bottom: 16px;
-          cursor: pointer;
-
-          .book-cover {
-            width: 60px;
-            height: 80px;
-            border-radius: 4px;
-            background: #f0f0f0;
-            flex-shrink: 0;
-          }
-
-          .book-info {
-            flex: 1;
-
-            .book-title {
-              font-size: 14px;
-              font-weight: 500;
-              color: #212529;
-              margin-bottom: 4px;
-            }
-
-            .book-author {
-              font-size: 12px;
-              color: #999;
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-// 민음사 스타일 푸터
-const MinumsaFooter = styled.div`
-  background: #f5f5f5;
-  color: #666;
-  padding: 20px 0;
-  text-align: center;
-  font-size: 12px;
-  border-top: 1px solid #e0e0e0;
-
-  .copyright {
-    opacity: 0.7;
-  }
-`;
-
-// 배너 스타일
-const BannerSection = styled.div`
-  background: #f5a9bc;
-  padding: 40px 20px;
-  text-align: center;
-  position: relative;
-
-  .banner-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .banner-text {
-      flex: 1;
-
-      h2 {
-        font-size: 28px;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 12px;
-        line-height: 1.3;
-      }
-
-      p {
-        font-size: 16px;
-        color: #555;
-        margin-bottom: 8px;
-      }
-    }
-
-    .banner-image {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-
-      .book-icon {
-        width: 80px;
-        height: 100px;
-        background: #333;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 14px;
-      }
-    }
-  }
-`;
-
-// 카테고리 탭
-const CategoryTabs = styled.div`
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 0 20px;
-
-  .tabs-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    gap: 30px;
-    padding: 16px 0;
-
-    .tab {
-      color: #666;
-      font-size: 14px;
-      cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 20px;
-      transition: all 0.2s;
-      background: #f5f5f5;
-
-      &:hover {
-        background: #eeeeee;
-      }
-
-      &.active {
-        background: #333;
-        color: white;
-        font-weight: 500;
-      }
-    }
-  }
-`;
-
-// 게시글 리스트 컨테이너
-const PostListContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-`;
-
-// 메인 콘텐츠 영역 - 투명한 오버레이로 변경
+// 메인 콘텐츠 영역
 const MainContent = styled.div`
   position: relative;
-  z-index: 100;
+  z-index: 10;
   min-height: 100vh;
-  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+`;
 
-  > * {
-    pointer-events: auto;
+// 헤더 섹션
+const HeaderSection = styled.div`
+  text-align: center;
+  padding: 80px 20px 60px;
+  color: white;
+`;
+
+const MainTitle = styled.h1`
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+  text-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #fff 0%, #f0f8ff 50%, #e6f3ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+
+  @keyframes titleGlow {
+    0% {
+      filter: brightness(1);
+    }
+    100% {
+      filter: brightness(1.2);
+    }
   }
+`;
+
+const SubTitle = styled.p`
+  font-size: 1.5rem;
+  opacity: 0.95;
+  margin-bottom: 40px;
+  font-weight: 400;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const DescriptionCard = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px;
+  margin: 0 auto;
+  max-width: 700px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const DescriptionText = styled.p`
+  color: white;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin: 0;
+  text-align: center;
+  font-weight: 300;
+`;
+
+// 메인 콘텐츠 래퍼
+const ContentWrapper = styled.div`
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+`;
+
+// 코드 블록 스타일
+const CodeBlock = styled.div`
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 60px 0;
+  border: 2px solid rgba(0, 255, 136, 0.2);
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00ff88, #00cc6a, #00ff88);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+`;
+
+const CodeText = styled.pre`
+  color: #00ff88;
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 0;
+  white-space: pre-wrap;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+`;
+
+const CodeTitle = styled.h3`
+  color: #00ff88;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+`;
+
+// 섹션 구분선
+const SectionDivider = styled.div`
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  margin: 100px 0;
+  border-radius: 1px;
+`;
+
+// 푸터
+const Footer = styled.footer`
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 60px 20px 40px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const FooterText = styled.p`
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin: 0;
 `;
 
 // 개발용 컨트롤 패널
@@ -945,7 +589,7 @@ export default function App() {
     const sessionId = oldKey;
 
     // show 메서드에 sessionId와 characterName 전달
-    widget?.show({ sessionId, character: "미들마치" });
+    widget?.show({ sessionId, character: "차선겸" });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
     console.log(
@@ -1090,482 +734,158 @@ export default function App() {
 
   return (
     <AppContainer>
-      {/* 민음사 스타일 배경 */}
-      <MinumsaBackground>
-        <MinumsaHeader>
-          <div className="container">
-            <a href="#" className="logo">
-              민음커뮤니티
-            </a>
-            <div className="user-menu">
-              <button
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                }}
-              >
-                🔔
-              </button>
-              <button
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                }}
-              >
-                ☰
-              </button>
-            </div>
-          </div>
-        </MinumsaHeader>
-
-        <MinumsaMainBg>
-          {/* 배너 섹션 */}
-          <BannerSection>
-            <div className="banner-content">
-              <div className="banner-text">
-                <p>민음사 × 동네서점</p>
-                <h2>
-                  동네서점 방문하고
-                  <br />
-                  e-스탬프 모아받요
-                </h2>
-                <p style={{ fontSize: "14px" }}>2025 MINUM BOOKCLUB</p>
-              </div>
-              <div className="banner-image">
-                <div className="book-icon">BOOK</div>
-                <div className="book-icon" style={{ background: "#555" }}>
-                  STAMP
-                </div>
-              </div>
-            </div>
-          </BannerSection>
-
-          {/* 카테고리 탭 */}
-          <CategoryTabs>
-            <div className="tabs-container">
-              <div className="tab active">전체</div>
-              <div className="tab">잡동산이</div>
-              <div className="tab">2025 민음북클럽</div>
-              <div className="tab">이벤트</div>
-              <div className="tab">챌린지</div>
-              <div className="tab">자유게시판</div>
-              <div className="tab">정보게시판</div>
-              <div className="tab">책추천</div>
-              <div className="tab">후기</div>
-              <div className="tab">동네서점 방문기</div>
-            </div>
-          </CategoryTabs>
-
-          {/* 게시글 리스트 */}
-          <PostListContainer>
-            <div className="sort-controls">
-              <select>
-                <option>최근 글</option>
-                <option>인기 글</option>
-                <option>댓글 TOP</option>
-              </select>
-              <div className="notice-toggle">
-                <span>공지글 7 감춤</span>
-                <input type="checkbox" />
-              </div>
-            </div>
-
-            <div className="post-list">
-              {/* 공지 게시글 */}
-              <div
-                className="post-item"
-                style={{
-                  borderBottom: "1px solid #f0f0f0",
-                  padding: "16px",
-                  background: "#fafafa",
-                }}
-              >
-                <div
-                  style={{ display: "flex", gap: "12px", alignItems: "center" }}
-                >
-                  <span
-                    style={{
-                      background: "#ff6b6b",
-                      color: "white",
-                      padding: "2px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    공지
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <a
-                      href="#"
-                      style={{
-                        color: "#333",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      📖 &lt;기도하는 공작 부인&gt; 에디션 독서모임 일정 변경
-                      안내
-                    </a>
-                  </div>
-                  <span style={{ fontSize: "12px", color: "#999" }}>
-                    2025 민음북클럽
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className="post-item"
-                style={{
-                  borderBottom: "1px solid #f0f0f0",
-                  padding: "16px",
-                  background: "#fafafa",
-                }}
-              >
-                <div
-                  style={{ display: "flex", gap: "12px", alignItems: "center" }}
-                >
-                  <span
-                    style={{
-                      background: "#ff6b6b",
-                      color: "white",
-                      padding: "2px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    공지
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <a
-                      href="#"
-                      style={{
-                        color: "#333",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      [이벤트/릿챌] 🌊🌊릿터 챌린지 왔다🌊🌊 - 🥰재밌는 내용을
-                      소개하고 선물과 포인트 받아가자! 🎁🥰
-                    </a>
-                  </div>
-                  <span style={{ fontSize: "12px", color: "#999" }}>
-                    이벤트
-                  </span>
-                </div>
-              </div>
-
-              {/* 일반 게시글 */}
-              <div
-                className="post-item"
-                style={{
-                  borderBottom: "1px solid #f0f0f0",
-                  padding: "16px",
-                  display: "flex",
-                  gap: "16px",
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ marginBottom: "8px" }}>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        color: "#999",
-                        marginRight: "8px",
-                      }}
-                    >
-                      챌린지
-                    </span>
-                    <a
-                      href="#"
-                      style={{
-                        color: "#333",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      미들마치 2주차
-                    </a>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "#666",
-                      margin: "8px 0",
-                      lineHeight: "1.5",
-                    }}
-                  >
-                    우선 시작은 **2주차 질문들** 1. 엘리엇은 2부의 제목 '노인과
-                    청년'에 어떤 의미를 담고 싶었던 걸까요? 사실 처음엔 초반
-                    리드게이트 부분이 ...
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "16px",
-                      fontSize: "12px",
-                      color: "#999",
-                    }}
-                  >
-                    <span>10분 전</span>
-                    <span>미들마치 2주차</span>
-                    <div
-                      style={{
-                        marginLeft: "auto",
-                        display: "flex",
-                        gap: "12px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span>찹쌀떡말랑말랑</span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        ❤️ 2
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        💬 2
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="post-item"
-                style={{
-                  borderBottom: "1px solid #f0f0f0",
-                  padding: "16px",
-                  display: "flex",
-                  gap: "16px",
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ marginBottom: "8px" }}>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        color: "#999",
-                        marginRight: "8px",
-                      }}
-                    >
-                      이벤트
-                    </span>
-                    <a
-                      href="#"
-                      style={{
-                        color: "#333",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      [릿챌] 54호 - 애프터눈 드라이브
-                    </a>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "#666",
-                      margin: "8px 0",
-                      lineHeight: "1.5",
-                    }}
-                  >
-                    릿챌 참여!!! 비교적 최근에 읽은 54호 최예솔 작가님의
-                    단편소설 '애프터눈 드라이브'가 기억에 남네.
-                    유교인간(나......)이 이해하기엔 다소 자유로운 인물...
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "16px",
-                      fontSize: "12px",
-                      color: "#999",
-                    }}
-                  >
-                    <span>29분 전</span>
-                    <span>릿챌</span>
-                    <div
-                      style={{
-                        marginLeft: "auto",
-                        display: "flex",
-                        gap: "12px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span>그로칼랭</span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        ❤️ 1
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        💬 1
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="post-item"
-                style={{
-                  borderBottom: "1px solid #f0f0f0",
-                  padding: "16px",
-                  display: "flex",
-                  gap: "16px",
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ marginBottom: "8px" }}>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        color: "#999",
-                        marginRight: "8px",
-                      }}
-                    >
-                      자유게시판
-                    </span>
-                    <a
-                      href="#"
-                      style={{
-                        color: "#333",
-                        textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      왜 아직도 수요일인가.....
-                    </a>
-                  </div>
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "#666",
-                      margin: "8px 0",
-                      lineHeight: "1.5",
-                    }}
-                  >
-                    왜 아직도 수요일인가..... 아.. 한 주 너무 긴 것 같아. 평일
-                    5일에 주말 2일인 거 한 주의 비중이 좀 말이 안되지 않아? 주
-                    3.5일 희망자로서 ...
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "16px",
-                      fontSize: "12px",
-                      color: "#999",
-                    }}
-                  >
-                    <span>34분 전</span>
-                    <span>일상</span>
-                    <div
-                      style={{
-                        marginLeft: "auto",
-                        display: "flex",
-                        gap: "12px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span>실비아</span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        ❤️ 3
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        💬 4
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </PostListContainer>
-        </MinumsaMainBg>
-
-        <MinumsaFooter>
-          <div className="copyright">Copyright © Minumsa Publishing Group</div>
-        </MinumsaFooter>
-      </MinumsaBackground>
+      {/* 배경 애니메이션 요소들 */}
+      <FloatingElement
+        size="100px"
+        top="5%"
+        left="5%"
+        animationDelay="0s"
+        color="#ff6b6b"
+      />
+      <FloatingElement
+        size="140px"
+        top="15%"
+        left="85%"
+        animationDelay="1.5s"
+        color="#4ecdc4"
+      />
+      <FloatingElement
+        size="80px"
+        top="55%"
+        left="10%"
+        animationDelay="3s"
+        color="#45b7d1"
+      />
+      <FloatingElement
+        size="120px"
+        top="65%"
+        left="80%"
+        animationDelay="4.5s"
+        color="#96ceb4"
+      />
+      <FloatingElement
+        size="110px"
+        top="35%"
+        left="45%"
+        animationDelay="6s"
+        color="#feca57"
+      />
+      <FloatingElement
+        size="90px"
+        top="75%"
+        left="25%"
+        animationDelay="7.5s"
+        color="#ff9ff3"
+      />
+      <FloatingElement
+        size="70px"
+        top="25%"
+        left="60%"
+        animationDelay="9s"
+        color="#a8e6cf"
+      />
+      <FloatingElement
+        size="130px"
+        top="85%"
+        left="70%"
+        animationDelay="10.5s"
+        color="#ffd3a5"
+      />
 
       <MainContent>
-        {/* 개발용 컨트롤 패널 */}
-        <DevPanel
-          isDragging={isDragging}
-          style={{
-            left: `${panelPosition.x}px`,
-            top: `${panelPosition.y}px`,
-          }}
-          onMouseDown={handleMouseDown}
-        >
-          <DragHandle />
-          <DevTitle>🛠 SDK 테스트 컨트롤</DevTitle>
+        {/* 헤더 섹션 */}
+        <HeaderSection>
+          <MainTitle>💬 Chatie Chat Bot SDK</MainTitle>
+          <SubTitle>AI 채팅봇 통합 솔루션</SubTitle>
+          <DescriptionCard>
+            <DescriptionText>
+              채팅봇 SDK를 사용하여 웹사이트에 AI 채팅봇을 쉽게 통합하세요.
+              다양한 캐릭터와 설정을 통해 맞춤형 채팅 경험을 제공할 수 있습니다.
+            </DescriptionText>
+          </DescriptionCard>
+        </HeaderSection>
 
-          <DevButtonGroup>
-            {/* <DevButton onClick={showWidget}>
-              하드코딩키로 대화하기(공유 세션)
-            </DevButton> */}
-            <DevButton onClick={() => showNewChat("차선겸")}>
-              새로 대화하기
+        {/* 메인 콘텐츠 */}
+        <ContentWrapper>
+          <DescriptionCard>
+            <DescriptionText>
+              🎨 아름다운 디자인과 부드러운 애니메이션으로 만들어진
+              페이지입니다.
+              <br />
+              왼쪽 상단의 개발 패널에서 다양한 기능을 테스트해보세요.
+            </DescriptionText>
+          </DescriptionCard>
+
+          <SectionDivider />
+
+          <DescriptionCard>
+            <CodeTitle>💻 간단한 통합</CodeTitle>
+            <CodeBlock>
+              <CodeText>{`// 채팅봇 초기화 코드
+const plugin = new ChatSDK({
+  // 모바일에서 전체화면 여부
+  mobileFullscreen: true,
+  
+  onChatRoomCreated: async (a, b) => {
+    console.log(a, b, "챗룸생성 함수...");
+  },
+  
+  onClickSendButton: async (a, b) => {
+    console.log(a, b, "보내기이벤트...");
+  },
+  
+  // 프로필 이미지 클릭 이벤트 핸들러
+  onClickProfileImage: async (a, b) => {
+    console.log(a, b, "Profile image clicked!");
+    alert("프로필을 클릭했습니다!");
+  },
+});`}</CodeText>
+            </CodeBlock>
+          </DescriptionCard>
+        </ContentWrapper>
+      </MainContent>
+
+      {/* 간단한 푸터 */}
+      <Footer>
+        <FooterText>✨ Beautiful Design Demo</FooterText>
+      </Footer>
+
+      {/* 개발용 컨트롤 패널 */}
+      <DevPanel
+        isDragging={isDragging}
+        style={{
+          left: `${panelPosition.x}px`,
+          top: `${panelPosition.y}px`,
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        <DragHandle />
+        <DevTitle>🛠 SDK 테스트 컨트롤</DevTitle>
+
+        <DevButtonGroup>
+          <DevButton onClick={showWidget}>
+            하드코딩키로 대화하기(공유 세션)
+          </DevButton>
+          <DevButton onClick={() => showNewChat("차선겸")}>
+            새로 차선겸과 대화하기
+          </DevButton>
+          <DevButton onClick={() => showNewChat("서리")}>
+            새로 서리와 대화하기
+          </DevButton>
+          {currentCharacter && (
+            <DevButton onClick={showLocalStorageKey}>
+              기존 내 키로 {currentCharacter}와 대화하기
             </DevButton>
-            {currentCharacter && (
-              <DevButton onClick={showLocalStorageKey}>대화 이어하기</DevButton>
-            )}
-            <DevButton onClick={hideWidget}>Hide</DevButton>
-            {/* <DevButton onClick={toggleCharacter}>
+          )}
+          <DevButton onClick={hideWidget}>Hide</DevButton>
+          {/* <DevButton onClick={toggleCharacter}>
             Toggle Character {currentCharacter}
           </DevButton> */}
-            <DevButton variant="danger" onClick={destroyWidget}>
-              Destroy
-            </DevButton>
+          <DevButton variant="danger" onClick={destroyWidget}>
+            Destroy
+          </DevButton>
 
-            {/* <PresetSection>
+          {/* <PresetSection>
             <PresetTitle>🤖 Preset 선택</PresetTitle>
             <CurrentPreset>
               현재 Preset: <strong>ID {currentPresetId}</strong>
@@ -1581,8 +901,8 @@ export default function App() {
               </PresetButton>
             ))}
           </PresetSection> */}
-          </DevButtonGroup>
-          {/* <SpeedSection>
+        </DevButtonGroup>
+        {/* <SpeedSection>
           <SpeedTitle>⚡ 애니메이션 속도</SpeedTitle>
           <CurrentSpeed>
             현재 속도: <strong>{currentAnimationSpeed}ms</strong>
@@ -1598,13 +918,12 @@ export default function App() {
             </SpeedButton>
           ))}
         </SpeedSection> */}
-          <StatusText>
-            초기화: <span>{widget ? "✅" : "❌"}</span> | 표시:{" "}
-            <span>{isVisible ? "✅" : "❌"}</span> | 클릭:{" "}
-            <span>{clickCount}</span>
-          </StatusText>
-        </DevPanel>
-      </MainContent>
+        <StatusText>
+          초기화: <span>{widget ? "✅" : "❌"}</span> | 표시:{" "}
+          <span>{isVisible ? "✅" : "❌"}</span> | 클릭:{" "}
+          <span>{clickCount}</span>
+        </StatusText>
+      </DevPanel>
     </AppContainer>
   );
 }

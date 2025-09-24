@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>밀리의 서재 X Millie Chat SDK</title>
+
+    <!-- Millie Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Reset & Base Styles from Millie */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #242424;
+        background: #fff;
+      }
+
+      /* Millie Color Palette */
+      :root {
+        --millie-primary: #ff9500;
+        --millie-primary-dark: #ff7b00;
+        --millie-black: #242424;
+        --millie-gray-900: #333333;
+        --millie-gray-800: #4d4d4d;
+        --millie-gray-700: #666666;
+        --millie-gray-600: #808080;
+        --millie-gray-500: #999999;
+        --millie-gray-400: #b3b3b3;
+        --millie-gray-300: #cccccc;
+        --millie-gray-200: #e6e6e6;
+        --millie-gray-100: #f5f5f5;
+        --millie-white: #ffffff;
+      }
+
+      /* Header Style from Millie */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: var(--millie-white);
+        border-bottom: 1px solid var(--millie-gray-200);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+      }
+
+      .header-logo {
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+        font-size: 20px;
+        color: var(--millie-primary);
+      }
+
+      .header-logo img {
+        height: 32px;
+        margin-right: 8px;
+      }
+
+      /* Hero Section */
+      .hero {
+        margin-top: 56px;
+        padding: 80px 20px;
+        background: linear-gradient(135deg, #fff5e6 0%, #ffe8d1 100%);
+        text-align: center;
+      }
+
+      .hero-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: var(--millie-primary);
+        color: var(--millie-white);
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .hero-title {
+        font-size: 36px;
+        font-weight: 900;
+        color: var(--millie-black);
+        margin-bottom: 16px;
+        line-height: 1.3;
+      }
+
+      .hero-subtitle {
+        font-size: 18px;
+        color: var(--millie-gray-700);
+        margin-bottom: 40px;
+        line-height: 1.6;
+      }
+
+      /* Book Card Style */
+      .book-section {
+        padding: 60px 20px;
+        background: var(--millie-white);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .book-card {
+        display: flex;
+        gap: 40px;
+        background: var(--millie-white);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        margin-bottom: 40px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .book-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+
+      .book-cover {
+        flex-shrink: 0;
+        width: 200px;
+        height: 300px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .book-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .book-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--millie-black);
+        margin-bottom: 12px;
+      }
+
+      .book-author {
+        font-size: 16px;
+        color: var(--millie-gray-600);
+        margin-bottom: 20px;
+      }
+
+      .book-description {
+        font-size: 15px;
+        color: var(--millie-gray-700);
+        line-height: 1.8;
+        margin-bottom: 30px;
+      }
+
+      /* CTA Buttons */
+      .cta-buttons {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: var(--millie-primary);
+        color: var(--millie-white);
+      }
+
+      .btn-primary:hover {
+        background: var(--millie-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+      }
+
+      .btn-secondary {
+        background: var(--millie-gray-100);
+        color: var(--millie-black);
+      }
+
+      .btn-secondary:hover {
+        background: var(--millie-gray-200);
+      }
+
+      .btn-chat {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: var(--millie-white);
+      }
+
+      .btn-chat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      /* Feature Section */
+      .feature-section {
+        padding: 60px 20px;
+        background: var(--millie-gray-100);
+      }
+
+      .section-title {
+        font-size: 32px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 50px;
+        color: var(--millie-black);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+      }
+
+      .feature-card {
+        background: var(--millie-white);
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .feature-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 20px;
+        background: var(--millie-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+      }
+
+      .feature-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--millie-black);
+      }
+
+      .feature-description {
+        font-size: 14px;
+        color: var(--millie-gray-600);
+        line-height: 1.6;
+      }
+
+      /* Chat Demo Section */
+      .chat-demo {
+        padding: 80px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        text-align: center;
+      }
+
+      .chat-demo-title {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--millie-white);
+        margin-bottom: 20px;
+      }
+
+      .chat-demo-subtitle {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 40px;
+      }
+
+      .chat-trigger-btn {
+        padding: 20px 40px;
+        font-size: 18px;
+        font-weight: 700;
+        background: var(--millie-white);
+        color: #667eea;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .chat-trigger-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Footer */
+      .footer {
+        padding: 40px 20px;
+        background: var(--millie-gray-900);
+        color: var(--millie-gray-400);
+        text-align: center;
+      }
+
+      .footer-logo {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--millie-primary);
+        margin-bottom: 20px;
+      }
+
+      .footer-text {
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 28px;
+        }
+
+        .book-card {
+          flex-direction: column;
+          padding: 20px;
+        }
+
+        .book-cover {
+          width: 100%;
+          max-width: 200px;
+          margin: 0 auto;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-logo">
+        <span style="color: #ff9500">📚</span>
+        밀리의 서재 X Chat SDK
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">NEW AI CHATBOT</div>
+        <h1 class="hero-title">
+          <참아주세요, 대공><br />
+          클로드 대공 AI 챗봇
+        </h1>
+        <p class="hero-subtitle">
+          당신의 연애 세포를 깨울 명작, 챗봇으로 탄생하다!<br />
+          지금 바로 대공님과 대화를 시작해보세요
+        </p>
+      </div>
+    </section>
+
+    <!-- Book Section -->
+    <section class="book-section">
+      <div class="container">
+        <div class="book-card">
+          <div class="book-cover">📖</div>
+          <div class="book-info">
+            <h2 class="book-title">참아주세요, 대공</h2>
+            <p class="book-author">저자: 밀리언 작가</p>
+            <p class="book-description">
+              차가운 얼음 같은 대공님의 마음을 녹일 수 있는 건 오직 당신뿐!<br />
+              이제 AI 챗봇으로 더욱 생생하게 대공님을 만나보세요.<br />
+              당신의 선택에 따라 달라지는 엔딩, 과연 해피엔딩을 맞이할 수
+              있을까요?
+            </p>
+            <div class="cta-buttons">
+              <button class="btn btn-primary">📖 원작 읽기</button>
+              <button class="btn btn-chat" onclick="showChat()">
+                💬 AI 챗봇 시작하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Section -->
+    <section class="feature-section">
+      <div class="container">
+        <h2 class="section-title">AI 챗봇 기능</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">똑똑한 AI</h3>
+            <p class="feature-description">
+              최신 AI 기술로 더욱 자연스러운 대화가 가능합니다
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">💕</div>
+            <h3 class="feature-title">로맨스 시뮬레이션</h3>
+            <p class="feature-description">
+              원작의 감동을 그대로 느낄 수 있는 몰입감 있는 대화
+            </p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <h3 class="feature-title">인터랙티브 스토리</h3>
+            <p class="feature-description">당신의 선택이 스토리를 바꿉니다</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat Demo Section -->
+    <section class="chat-demo">
+      <div class="container">
+        <h2 class="chat-demo-title">지금 바로 시작하세요!</h2>
+        <p class="chat-demo-subtitle">클로드 대공이 당신을 기다리고 있습니다</p>
+        <button class="chat-trigger-btn" onclick="showChat()">
+          💬 채팅 시작하기
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-logo">밀리의 서재</div>
+        <p class="footer-text">
+          © 2024 Millie's Library. All rights reserved.<br />
+          독서와 함께하는 일상, 밀리의 서재
+        </p>
+      </div>
+    </footer>
+
+    <!-- Millie Chat SDK -->
+    <script src="../dist/index.umd.js"></script>
+
+    <script>
+      // Initialize Millie Chat Plugin
+      const chat = new MillieChatSDK({
+        userId: "millie-user-" + Math.random().toString(36).substr(2, 9),
+        userName: "독자님",
+        roomId: "클로드 대공 채팅방",
+        position: "bottom-right",
+        width: 380,
+        height: 600,
+        customStyles: `
+                .millie-chat-widget-container {
+                    font-family: 'Noto Sans KR', sans-serif !important;
+                }
+            `,
+      });
+
+      // Event Handlers
+      chat.on("onOpen", () => {
+        console.log("밀리 채팅이 열렸습니다");
+
+        // Send welcome message
+        setTimeout(() => {
+          chat.receiveMessage({
+            id: Date.now().toString(),
+            text: "안녕하세요, 저는 클로드 대공입니다. 무엇을 도와드릴까요?",
+            userId: "claude",
+            userName: "클로드 대공",
+            timestamp: new Date(),
+            type: "text",
+          });
+        }, 1000);
+      });
+
+      chat.on("onMessage", (message) => {
+        console.log("새 메시지:", message);
+
+        // Simulate AI response
+        setTimeout(() => {
+          const responses = [
+            "흥미로운 이야기네요. 더 들려주세요.",
+            "당신의 마음을 이해합니다.",
+            "그런 생각을 하고 계셨군요.",
+            "저도 같은 생각입니다.",
+            "더 자세히 설명해 주시겠어요?",
+          ];
+
+          const randomResponse =
+            responses[Math.floor(Math.random() * responses.length)];
+
+          chat.receiveMessage({
+            id: Date.now().toString(),
+            text: randomResponse,
+            userId: "claude",
+            userName: "클로드 대공",
+            timestamp: new Date(),
+            type: "text",
+          });
+        }, 1500);
+      });
+
+      // Show chat function
+      function showChat() {
+        chat.show();
+      }
+
+      // Auto show chat after 3 seconds
+      setTimeout(() => {
+        // Uncomment to auto-show
+        // showChat();
+      }, 3000);
+    </script>
+  </body>
+</html>
