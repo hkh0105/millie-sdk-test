@@ -497,6 +497,7 @@ const StatusText = styled.div`
 
 export default function App() {
   const [widget, setWidget] = useState<MillieChatPlugin | null>(null);
+  const [widgetBom, setWidgetBom] = useState<MillieChatPlugin | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<string | null>(null);
@@ -531,8 +532,27 @@ export default function App() {
   useEffect(() => {
     // SDK 초기화 예제
     // 1. ChatPlugin 인스턴스 생성
-    console.log("HI");
+    console.log(window);
     const plugin = new window.MillieChatSDK.MillieChatPlugin({
+      // 모바일에서 전체화면 여부
+      mobileFullscreen: true,
+      // messageAnimationSpeed: currentAnimationSpeed,
+      onChatRoomCreated: async (a, b) => {
+        console.log(a, b, "챗룸생성 함수...");
+      },
+      onClickSendButton: async (a, b) => {
+        console.log(a, b, "보내기이벤트...");
+      },
+      // 프로필 이미지 클릭 이벤트 핸들러
+      onClickProfileImage: async (a, b) => {
+        console.log(a, b, "Profile image clicked! Moving to detail page...");
+        alert(
+          "프로필을 클릭했습니다! 여기에 상세 페이지 이동 로직을 구현하세요."
+        );
+      },
+    });
+
+    const bomPlugin = new window.BomtoonChatPlugin({
       // 모바일에서 전체화면 여부
       mobileFullscreen: true,
       // messageAnimationSpeed: currentAnimationSpeed,
@@ -553,12 +573,14 @@ export default function App() {
 
     // React state에 저장
     setWidget(plugin);
+    setWidgetBom(bomPlugin);
 
     console.log("✅ Chat Bot SDK 초기화 완료");
 
     // 컴포넌트 언마운트 시 정리
     return () => {
       plugin.destroy();
+      bomPlugin.destroy();
       console.log("🧹 Widget 정리 완료");
     };
   }, []);
@@ -577,7 +599,11 @@ export default function App() {
     } else if (!currentCharacter) {
       return alert("이전 채팅이 없습니다.");
     } else {
-      widget?.show({ sessionId: myKey, character: currentCharacter }); // 다른 캐릭터로 테스트
+      if (currentCharacter === "미들마치") {
+        widgetBom?.show({ sessionId: myKey, character: currentCharacter }); // 다른 캐릭터로 테스트
+      } else {
+        widget?.show({ sessionId: myKey, character: currentCharacter }); // 다른 캐릭터로 테스트
+      }
       setIsVisible(true);
       setClickCount((prev) => prev + 1);
     }
@@ -592,12 +618,6 @@ export default function App() {
     widget?.show({ sessionId, character: "차선겸" });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
-    console.log(
-      "Widget shown with session:",
-      sessionId,
-      "character:",
-      currentCharacter
-    );
   };
 
   const showNewChat = (name: string) => {
@@ -606,7 +626,11 @@ export default function App() {
     localStorage?.setItem("millie-session-key", newSessionId);
     localStorage?.setItem("prev-chat-caracter", name);
     setCurrentCharacter(name);
-    widget?.show({ sessionId: newSessionId, character: name }); // 다른 캐릭터로 테스트
+    if (name === "미들마치") {
+      widgetBom?.show({ sessionId: newSessionId, character: name }); // 다른 캐릭터로 테스트
+    } else {
+      widget?.show({ sessionId: newSessionId, character: name }); // 다른 캐릭터로 테스트
+    }
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
     console.log("New chat opened with session:", newSessionId);
@@ -868,6 +892,9 @@ const plugin = new ChatSDK({
           </DevButton>
           <DevButton onClick={() => showNewChat("차선겸")}>
             새로 차선겸과 대화하기
+          </DevButton>
+          <DevButton onClick={() => showNewChat("미들마치")}>
+            새로 미들마치와 대화하기
           </DevButton>
           <DevButton onClick={() => showNewChat("서리")}>
             새로 서리와 대화하기

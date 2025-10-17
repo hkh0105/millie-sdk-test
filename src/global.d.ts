@@ -23,6 +23,7 @@ interface ShowOptions {
 }
 
 declare class MillieChatPlugin {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setPresetId(presetId: number) {
     throw new Error("Method not implemented.");
   }
@@ -36,6 +37,7 @@ declare class MillieChatPlugin {
 
 declare interface Window {
   MillieChatPlugin: typeof MillieChatPlugin;
+  BomtoonChatPlugin: typeof MillieChatPlugin;
   MillieChatSDK: {
     MillieChatPlugin: typeof MillieChatPlugin;
   };
