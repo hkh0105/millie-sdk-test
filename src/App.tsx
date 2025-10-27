@@ -501,6 +501,7 @@ export default function App() {
   const [isVisible, setIsVisible] = useState(false);
   const [clickCount, setClickCount] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<string | null>(null);
+  const [isAdult, setIsAdult] = useState(false);
 
   // 드래그 앤 드롭 상태
   const [panelPosition, setPanelPosition] = useState({ x: 30, y: 30 });
@@ -593,16 +594,24 @@ export default function App() {
   // };
 
   const showLocalStorageKey = () => {
-    const myKey = localStorage?.getItem("millie-session-key");
+    const myKey = localStorage?.getItem("session-key");
     if (!myKey) {
       return alert("키를 먼저 발급받아주세요");
     } else if (!currentCharacter) {
       return alert("이전 채팅이 없습니다.");
     } else {
       if (currentCharacter === "미들마치") {
-        widgetBom?.show({ sessionId: myKey, character: currentCharacter }); // 다른 캐릭터로 테스트
+        widgetBom?.show({
+          sessionId: myKey,
+          character: currentCharacter,
+          isAdult,
+        }); // 다른 캐릭터로 테스트
       } else {
-        widget?.show({ sessionId: myKey, character: currentCharacter }); // 다른 캐릭터로 테스트
+        widget?.show({
+          sessionId: myKey,
+          character: currentCharacter,
+          isAdult,
+        }); // 다른 캐릭터로 테스트
       }
       setIsVisible(true);
       setClickCount((prev) => prev + 1);
@@ -615,21 +624,54 @@ export default function App() {
     const sessionId = oldKey;
 
     // show 메서드에 sessionId와 characterName 전달
-    widget?.show({ sessionId, character: "차선겸" });
+    widget?.show({ sessionId, isAdult, character: "차선겸" });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
+  };
+
+  const showPrevStoryChat = () => {
+    const session = localStorage?.getItem("story-session-key");
+    if (!session) {
+      return alert("회차대화 이야기 후 다시 시도해주세요");
+    }
+
+    widgetBom?.show({
+      sessionId: session,
+      character: "미들마치",
+      isAdult,
+      storyId: 6785,
+      episodeId: 366145,
+    });
+    setIsVisible(true);
+    setClickCount((prev) => prev + 1);
+    console.log("New chat opened with session:", newSessionId);
+  };
+  const showNewStoryChat = () => {
+    const newSessionId = MillieChatSDK.MillieChatPlugin.newSessionId();
+    localStorage?.setItem("story-session-key", newSessionId);
+
+    widgetBom?.show({
+      sessionId: newSessionId,
+      isAdult,
+      character: "미들마치",
+      storyId: 6785,
+      episodeId: 366145,
+    });
+    setIsVisible(true);
+    setClickCount((prev) => prev + 1);
+    console.log("New chat opened with session:", newSessionId);
   };
 
   const showNewChat = (name: string) => {
     // 새로운 세션 ID 생성하여 새 채팅방 열기
     const newSessionId = MillieChatSDK.MillieChatPlugin.newSessionId();
-    localStorage?.setItem("millie-session-key", newSessionId);
+    localStorage?.setItem("session-key", newSessionId);
     localStorage?.setItem("prev-chat-caracter", name);
     setCurrentCharacter(name);
-    if (name === "미들마치") {
-      widgetBom?.show({ sessionId: newSessionId, character: name }); // 다른 캐릭터로 테스트
+    if (name === "미들마치" || name === "구윤겸" || name === "원요일") {
+      widgetBom?.show({ sessionId: newSessionId, character: name, isAdult }); // 다른 캐릭터로 테스트
     } else {
-      widget?.show({ sessionId: newSessionId, character: name }); // 다른 캐릭터로 테스트
+      widget?.show({ sessionId: newSessionId, isAdult, character: name }); // 다른 캐릭터로 테스트
     }
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
@@ -733,6 +775,10 @@ export default function App() {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  const toggleAdult = () => {
+    setIsAdult(!isAdult);
   };
 
   useEffect(() => {
@@ -898,6 +944,21 @@ const plugin = new ChatSDK({
           </DevButton>
           <DevButton onClick={() => showNewChat("서리")}>
             새로 서리와 대화하기
+          </DevButton>
+          <DevButton onClick={() => showNewChat("구윤원")}>
+            새로 구윤겸와 대화하기
+          </DevButton>
+          <DevButton onClick={() => showNewChat("원요일")}>
+            새로 원요일와 대화하기
+          </DevButton>
+          <DevButton onClick={() => showNewStoryChat()}>
+            새로 스토리챗 대화하기
+          </DevButton>
+          <DevButton onClick={() => toggleAdult()}>
+            성인 유무 {isAdult ? "true" : "false"}
+          </DevButton>
+          <DevButton onClick={() => showPrevStoryChat()}>
+            기존 스토리챗 대화하기
           </DevButton>
           {currentCharacter && (
             <DevButton onClick={showLocalStorageKey}>
