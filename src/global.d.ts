@@ -20,6 +20,9 @@ interface MillieChatPluginOptions {
 interface ShowOptions {
   sessionId: string;
   character?: string;
+  isAdult?: boolean;
+  storyId?: string | number;
+  episodeId?: string | number;
 }
 
 declare class MillieChatPlugin {

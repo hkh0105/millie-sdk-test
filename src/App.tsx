@@ -644,7 +644,7 @@ export default function App() {
     });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
-    console.log("New chat opened with session:", newSessionId);
+    console.log("New chat opened with session:");
   };
   const showNewStoryChat = () => {
     const newSessionId = MillieChatSDK.MillieChatPlugin.newSessionId();
