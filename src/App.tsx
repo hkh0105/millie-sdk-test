@@ -933,7 +933,7 @@ const plugin = new ChatSDK({
         <DevTitle>🛠 SDK 테스트 컨트롤</DevTitle>
 
         <DevButtonGroup>
-          <DevButton onClick={showWidget}>
+          {/* <DevButton onClick={showWidget}>
             하드코딩키로 대화하기(공유 세션)
           </DevButton>
           <DevButton onClick={() => showNewChat("차선겸")}>
@@ -944,7 +944,7 @@ const plugin = new ChatSDK({
           </DevButton>
           <DevButton onClick={() => showNewChat("서리")}>
             새로 서리와 대화하기
-          </DevButton>
+          </DevButton> */}
           <DevButton onClick={() => showNewChat("구윤원")}>
             새로 구윤원와 대화하기
           </DevButton>
