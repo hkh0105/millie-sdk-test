@@ -618,16 +618,16 @@ export default function App() {
     }
   };
 
-  const showWidget = () => {
-    // 새 세션 ID 생성 또는 기존 세션 사용
-    const oldKey = "c5b144f8-c54f-450c-9545-57745489cf15";
-    const sessionId = oldKey;
+  // const showWidget = () => {
+  //   // 새 세션 ID 생성 또는 기존 세션 사용
+  //   const oldKey = "c5b144f8-c54f-450c-9545-57745489cf15";
+  //   const sessionId = oldKey;
 
-    // show 메서드에 sessionId와 characterName 전달
-    widget?.show({ sessionId, isAdult, character: "차선겸" });
-    setIsVisible(true);
-    setClickCount((prev) => prev + 1);
-  };
+  //   // show 메서드에 sessionId와 characterName 전달
+  //   widget?.show({ sessionId, isAdult, character: "차선겸" });
+  //   setIsVisible(true);
+  //   setClickCount((prev) => prev + 1);
+  // };
 
   const showPrevStoryChat = () => {
     const session = localStorage?.getItem("story-session-key");
