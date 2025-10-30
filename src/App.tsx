@@ -637,10 +637,10 @@ export default function App() {
 
     widgetBom?.show({
       sessionId: session,
-      character: "미들마치",
+      character: "원요일",
       isAdult,
-      storyId: 6785,
-      episodeId: 366145,
+      storyId: 626083,
+      episodeId: 2344765,
     });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
@@ -653,9 +653,9 @@ export default function App() {
     widgetBom?.show({
       sessionId: newSessionId,
       isAdult,
-      character: "미들마치",
-      storyId: 6785,
-      episodeId: 366145,
+      character: "원요일",
+      storyId: 626083,
+      episodeId: 2344765,
     });
     setIsVisible(true);
     setClickCount((prev) => prev + 1);
@@ -668,7 +668,7 @@ export default function App() {
     localStorage?.setItem("session-key", newSessionId);
     localStorage?.setItem("prev-chat-caracter", name);
     setCurrentCharacter(name);
-    if (name === "미들마치" || name === "구윤겸" || name === "원요일") {
+    if (name === "미들마치" || name === "구윤원" || name === "원요일") {
       widgetBom?.show({ sessionId: newSessionId, character: name, isAdult }); // 다른 캐릭터로 테스트
     } else {
       widget?.show({ sessionId: newSessionId, isAdult, character: name }); // 다른 캐릭터로 테스트
@@ -946,7 +946,7 @@ const plugin = new ChatSDK({
             새로 서리와 대화하기
           </DevButton>
           <DevButton onClick={() => showNewChat("구윤원")}>
-            새로 구윤겸와 대화하기
+            새로 구윤원와 대화하기
           </DevButton>
           <DevButton onClick={() => showNewChat("원요일")}>
             새로 원요일와 대화하기
