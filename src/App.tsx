@@ -600,19 +600,11 @@ export default function App() {
     } else if (!currentCharacter) {
       return alert("이전 채팅이 없습니다.");
     } else {
-      if (currentCharacter === "미들마치") {
-        widgetBom?.show({
-          sessionId: myKey,
-          character: currentCharacter,
-          isAdult,
-        }); // 다른 캐릭터로 테스트
-      } else {
-        widget?.show({
-          sessionId: myKey,
-          character: currentCharacter,
-          isAdult,
-        }); // 다른 캐릭터로 테스트
-      }
+      widgetBom?.show({
+        sessionId: myKey,
+        character: currentCharacter,
+        isAdult,
+      }); // 다른 캐릭터로 테스트
       setIsVisible(true);
       setClickCount((prev) => prev + 1);
     }
