@@ -600,6 +600,11 @@ export default function App() {
     } else if (!currentCharacter) {
       return alert("이전 채팅이 없습니다.");
     } else {
+      if (isAdult) {
+        alert(
+          "성인대화는 처음 채팅방 생성시 여부가 결정됩니다.(지금 여시는 채팅방의 기존 성인채팅 유무 따라갑니다) "
+        );
+      }
       widgetBom?.show({
         sessionId: myKey,
         character: currentCharacter,
@@ -626,7 +631,9 @@ export default function App() {
     if (!session) {
       return alert("회차대화 이야기 후 다시 시도해주세요");
     }
-
+    if (isAdult) {
+      alert("성인대화가 지원되지 않는 스토리입니다.");
+    }
     widgetBom?.show({
       sessionId: session,
       character: "원요일",
@@ -642,6 +649,9 @@ export default function App() {
     const newSessionId = MillieChatSDK.MillieChatPlugin.newSessionId();
     localStorage?.setItem("story-session-key", newSessionId);
 
+    if (isAdult) {
+      alert("성인대화가 지원되지 않는 스토리입니다.");
+    }
     widgetBom?.show({
       sessionId: newSessionId,
       isAdult,
