@@ -328,11 +328,34 @@ const DevTitle = styled.h3`
   text-align: center;
 `;
 
+const ButtonSection = styled.div`
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(102, 126, 234, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
+const SectionLabel = styled.div`
+  font-size: 13px;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
 const DevButtonGroup = styled.div`
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 15px;
 `;
 
 const DevButton = styled.button<{
@@ -615,6 +638,19 @@ export default function App() {
     }
   };
 
+  const showPrevChatRoomByName = (name: string) => {
+    const sessionId = localStorage?.getItem(name);
+    setCurrentCharacter(name);
+    if (!sessionId) {
+      return alert("원요일과 채팅한 기록이 없습니다.");
+    }
+
+    widgetBom?.show({ sessionId: sessionId, character: name, isAdult });
+    setIsVisible(true);
+    setClickCount((prev) => prev + 1);
+    console.log("New chat opened with session:", sessionId);
+  };
+
   // const showWidget = () => {
   //   // 새 세션 ID 생성 또는 기존 세션 사용
   //   const oldKey = "c5b144f8-c54f-450c-9545-57745489cf15";
@@ -629,7 +665,7 @@ export default function App() {
   const showPrevStoryChat = () => {
     const session = localStorage?.getItem("story-session-key");
     if (!session) {
-      return alert("회차대화 이야기 후 다시 시도해주세요");
+      return alert("이전 회차대화 채팅방이 없습니다.");
     }
     if (isAdult) {
       alert("성인대화가 지원되지 않는 스토리입니다.");
@@ -667,6 +703,7 @@ export default function App() {
   const showNewChat = (name: string) => {
     // 새로운 세션 ID 생성하여 새 채팅방 열기
     const newSessionId = MillieChatSDK.MillieChatPlugin.newSessionId();
+    localStorage?.setItem(name, newSessionId);
     localStorage?.setItem("session-key", newSessionId);
     localStorage?.setItem("prev-chat-caracter", name);
     setCurrentCharacter(name);
@@ -934,64 +971,75 @@ const plugin = new ChatSDK({
         <DragHandle />
         <DevTitle>🛠 SDK 테스트 컨트롤</DevTitle>
 
-        <DevButtonGroup>
-          {/* <DevButton onClick={showWidget}>
-            하드코딩키로 대화하기(공유 세션)
-          </DevButton>
-          <DevButton onClick={() => showNewChat("차선겸")}>
-            새로 차선겸과 대화하기
-          </DevButton>
-          <DevButton onClick={() => showNewChat("미들마치")}>
-            새로 미들마치와 대화하기
-          </DevButton>
-          <DevButton onClick={() => showNewChat("서리")}>
-            새로 서리와 대화하기
-          </DevButton> */}
-          <DevButton onClick={() => showNewChat("구윤원")}>
-            새로 구윤원와 대화하기
-          </DevButton>
-          <DevButton onClick={() => showNewChat("원요일")}>
-            새로 원요일와 대화하기
-          </DevButton>
-          <DevButton onClick={() => showNewStoryChat()}>
-            새로 스토리챗 대화하기
-          </DevButton>
-          <DevButton onClick={() => toggleAdult()}>
-            성인 유무 {isAdult ? "true" : "false"}
-          </DevButton>
-          <DevButton onClick={() => showPrevStoryChat()}>
-            기존 스토리챗 대화하기
-          </DevButton>
-          {currentCharacter && (
-            <DevButton onClick={showLocalStorageKey}>
-              기존 내 키로 {currentCharacter}와 대화하기
+        <ButtonSection>
+          <SectionLabel>💬 1대1 채팅 IP정합형 </SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={() => showNewChat("구윤원")}>
+              새로 구윤원와 대화하기
             </DevButton>
-          )}
-          <DevButton onClick={hideWidget}>Hide</DevButton>
-          {/* <DevButton onClick={toggleCharacter}>
-            Toggle Character {currentCharacter}
-          </DevButton> */}
-          <DevButton variant="danger" onClick={destroyWidget}>
-            Destroy
-          </DevButton>
+            {/* {currentCharacter && (
+              <DevButton onClick={showLocalStorageKey}>
+                기존 내 키로 {currentCharacter}와 대화하기
+              </DevButton>
+            )} */}
+          </DevButtonGroup>
+        </ButtonSection>
 
-          {/* <PresetSection>
-            <PresetTitle>🤖 Preset 선택</PresetTitle>
-            <CurrentPreset>
-              현재 Preset: <strong>ID {currentPresetId}</strong>
-            </CurrentPreset>
-            {presetOptions.map((preset) => (
-              <PresetButton
-                key={preset.id}
-                isActive={currentPresetId === preset.id}
-                onClick={() => changePreset(preset.id)}
-              >
-                <span className="preset-id">{preset.id}</span>
-                <span className="preset-name">{preset.name}</span>
-              </PresetButton>
-            ))}
-          </PresetSection> */}
-        </DevButtonGroup>
+        <ButtonSection>
+          <SectionLabel>💬 자유시나리오방식 </SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={() => showNewChat("원요일")}>
+              새로 원요일와 대화하기
+            </DevButton>
+            {/* {currentCharacter && (
+              <DevButton onClick={showLocalStorageKey}>
+                기존 내 키로 {currentCharacter}와 대화하기
+              </DevButton>
+            )} */}
+          </DevButtonGroup>
+        </ButtonSection>
+        <ButtonSection>
+          <SectionLabel>📖 회차대화</SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={() => showNewStoryChat()}>
+              새로 회차대화 대화하기
+            </DevButton>
+          </DevButtonGroup>
+        </ButtonSection>
+
+        <ButtonSection>
+          <SectionLabel>💬 이전 대화 이어하기 </SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={() => showPrevChatRoomByName("원요일")}>
+              기존 내 키로 원요일과 대화하기
+            </DevButton>
+            <DevButton onClick={() => showPrevChatRoomByName("구윤원")}>
+              기존 내 키로 구윤원과 대화하기
+            </DevButton>
+            <DevButton onClick={() => showPrevStoryChat()}>
+              기존 회차대화 대화하기
+            </DevButton>
+          </DevButtonGroup>
+        </ButtonSection>
+
+        <ButtonSection>
+          <SectionLabel>⚙️ 설정</SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={() => toggleAdult()}>
+              성인 유무 {isAdult ? "true" : "false"}
+            </DevButton>
+          </DevButtonGroup>
+        </ButtonSection>
+
+        <ButtonSection>
+          <SectionLabel>🎮 컨트롤</SectionLabel>
+          <DevButtonGroup>
+            <DevButton onClick={hideWidget}>Hide</DevButton>
+            <DevButton variant="danger" onClick={destroyWidget}>
+              Destroy
+            </DevButton>
+          </DevButtonGroup>
+        </ButtonSection>
         {/* <SpeedSection>
           <SpeedTitle>⚡ 애니메이션 속도</SpeedTitle>
           <CurrentSpeed>
