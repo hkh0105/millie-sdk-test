@@ -13,7 +13,8 @@ const AppContainer = styled.div`
     #f093fb 100%
   );
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   &::before {
     content: "";
@@ -966,6 +967,8 @@ const plugin = new ChatSDK({
         style={{
           left: `${panelPosition.x}px`,
           top: `${panelPosition.y}px`,
+          height: "750px",
+          overflowY: "scroll",
         }}
         onMouseDown={handleMouseDown}
       >
