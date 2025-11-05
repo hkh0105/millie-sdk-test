@@ -616,27 +616,27 @@ export default function App() {
   //   }
   // };
 
-  const showLocalStorageKey = () => {
-    const myKey = localStorage?.getItem("session-key");
-    if (!myKey) {
-      return alert("키를 먼저 발급받아주세요");
-    } else if (!currentCharacter) {
-      return alert("이전 채팅이 없습니다.");
-    } else {
-      if (isAdult) {
-        alert(
-          "성인대화는 처음 채팅방 생성시 여부가 결정됩니다.(지금 여시는 채팅방의 기존 성인채팅 유무 따라갑니다) "
-        );
-      }
-      widgetBom?.show({
-        sessionId: myKey,
-        character: currentCharacter,
-        isAdult,
-      }); // 다른 캐릭터로 테스트
-      setIsVisible(true);
-      setClickCount((prev) => prev + 1);
-    }
-  };
+  // const showLocalStorageKey = () => {
+  //   const myKey = localStorage?.getItem("session-key");
+  //   if (!myKey) {
+  //     return alert("키를 먼저 발급받아주세요");
+  //   } else if (!currentCharacter) {
+  //     return alert("이전 채팅이 없습니다.");
+  //   } else {
+  //     if (isAdult) {
+  //       alert(
+  //         "성인대화는 처음 채팅방 생성시 여부가 결정됩니다.(지금 여시는 채팅방의 기존 성인채팅 유무 따라갑니다) "
+  //       );
+  //     }
+  //     widgetBom?.show({
+  //       sessionId: myKey,
+  //       character: currentCharacter,
+  //       isAdult,
+  //     }); // 다른 캐릭터로 테스트
+  //     setIsVisible(true);
+  //     setClickCount((prev) => prev + 1);
+  //   }
+  // };
 
   const showPrevChatRoomByName = (name: string) => {
     const sessionId = localStorage?.getItem(name);
@@ -777,6 +777,7 @@ export default function App() {
   // };
 
   useEffect(() => {
+    console.log(currentCharacter);
     const name = localStorage?.getItem("prev-chat-caracter");
     if (name) {
       setCurrentCharacter(name);
